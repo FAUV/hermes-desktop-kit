@@ -27,6 +27,7 @@ const PLUGIN_PATH = join(__dirname, '..', 'plugin.js')
 // ---------------------------------------------------------------------------
 
 const sdkStub = {
+  Badge: 'Badge',
   Button: 'Button',
   cn: (...args) => args.filter(Boolean).join(' '),
   Codicon: 'Codicon',
@@ -38,10 +39,14 @@ const sdkStub = {
     notify: () => {},
     state: {}
   },
+  Input: 'Input',
+  Loader: 'Loader',
   PALETTE_AREA: 'palette',
   queryClient: { invalidateQueries: () => {}, getQueryCache: () => ({ findAll: () => [] }) },
+  relativeTime: ts => 'just now',
   ROUTES_AREA: 'routes',
   ScrollArea: 'ScrollArea',
+  SegmentedControl: 'SegmentedControl',
   SIDEBAR_NAV_AREA: 'sidebar.nav',
   STATUSBAR_AREAS: { left: 'statusBar.left', right: 'statusBar.right' },
   Tip: 'Tip',

@@ -46,6 +46,7 @@ def test_plugin_api_imports_under_web_server_loader() -> None:
         capture_output=True,
         text=True,
         timeout=60,
+        check=False,
         env={"PATH": "/usr/bin:/bin"},
     )
     assert proc.returncode == 0, (

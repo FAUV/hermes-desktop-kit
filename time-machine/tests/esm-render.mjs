@@ -25,18 +25,22 @@ const REPO = process.env.HERMES_AGENT_NODE_MODULES || join(__dirname, '..', '..'
 // Healthy backend fixture
 // ---------------------------------------------------------------------------
 
-const FIXTURE_HEALTH = { ok: true, plugin: 'time-machine', status: 'skeleton' }
+const FIXTURE_HEALTH = { ok: true, plugin: 'time-machine', status: 'ready', profiles: 1, checkpoints: 0 }
+const FIXTURE_PROFILES = { profiles: [{ id: 'default', root: '/tmp/tm', exists: true, checkpoint_count: 0 }] }
+const FIXTURE_CHECKPOINTS = { profile: 'default', count: 0, items: [] }
 
 // ---------------------------------------------------------------------------
-// SDK stub — useQuery returns the fixture for /health
+// SDK stub — useQuery returns fixtures keyed by the query path (queryKey[1])
 // ---------------------------------------------------------------------------
-
-const FIXTURE_HEALTH_JSON = JSON.stringify(FIXTURE_HEALTH)
 
 const USE_QUERY_SRC = `opts => {
   const path = opts && opts.queryKey ? opts.queryKey[1] || '' : ''
-  const FIXTURE = ${FIXTURE_HEALTH_JSON}
-  if (path === 'health') return { data: FIXTURE, isLoading: false, isError: false, error: null }
+  const HEALTH = ${JSON.stringify(FIXTURE_HEALTH)}
+  const PROFILES = ${JSON.stringify(FIXTURE_PROFILES)}
+  const CHECKPOINTS = ${JSON.stringify(FIXTURE_CHECKPOINTS)}
+  if (path === 'health') return { data: HEALTH, isLoading: false, isError: false, error: null }
+  if (path === 'profiles') return { data: PROFILES, isLoading: false, isError: false, error: null }
+  if (path === 'checkpoints') return { data: CHECKPOINTS, isLoading: false, isError: false, error: null }
   return { data: null, isLoading: false, isError: false, error: null }
 }`
 
@@ -44,6 +48,7 @@ const sdkStub = {
   // String stubs act as host element names: React renders <Button>..children..</Button>,
   // so children (labels, nested content) survive renderToString. Only components
   // that turn props into text (EmptyState/ErrorState) are function stubs.
+  Badge: 'Badge',
   Button: 'Button',
   cn: (...args) => args.filter(Boolean).join(' '),
   Codicon: 'Codicon',
@@ -51,10 +56,14 @@ const sdkStub = {
   ErrorState: ({ title, description, children }) => 'ErrorState|' + (title || '') + '|' + (description || '') + '|' + (children || ''),
   haptic: () => {},
   host: { navigate: () => {}, notify: () => {}, state: {} },
+  Input: 'Input',
+  Loader: 'Loader',
   PALETTE_AREA: 'palette',
   queryClient: { invalidateQueries: () => {}, getQueryCache: () => ({ findAll: () => [] }) },
+  relativeTime: ts => 'just now',
   ROUTES_AREA: 'routes',
   ScrollArea: 'ScrollArea',
+  SegmentedControl: 'SegmentedControl',
   SIDEBAR_NAV_AREA: 'sidebar.nav',
   STATUSBAR_AREAS: { left: 'statusBar.left', right: 'statusBar.right' },
   Tip: 'Tip',
