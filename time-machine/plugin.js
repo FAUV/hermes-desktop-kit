@@ -658,19 +658,19 @@ function TimeMachinePage() {
   return jsxs('div', { className: 'flex h-full flex-col', children: [
     // Header
     jsxs('div', { className: 'flex items-center gap-2 border-b border-(--ui-stroke-tertiary) px-4 py-3', children: [
-      jsx(Codicon, { name: 'history', size: '1.1rem' }),
-      jsx('div', { className: 'text-sm font-semibold', children: 'Time Machine' }),
-      jsx('div', { className: 'text-xs text-(--ui-text-tertiary)', children: 'configuration history & safe rollback' }),
-      jsx('div', { className: 'ml-auto' }),
-      jsx(SegmentedControl, { value: profile, onChange: switchProfile, options: profileOptions }),
-      jsx(Button, { size: 'sm', variant: 'ghost', disabled: pruneBusy, onClick: prune, children: [jsx(Codicon, { name: 'trash' }), ' Prune'] }),
-      jsx(Button, { size: 'sm', variant: 'secondary', onClick: () => { haptic('tap'); setNewOpen(true) }, children: [jsx(Codicon, { name: 'checkpoint' }), ' New checkpoint'] }),
-      jsx(Button, { size: 'sm', variant: 'ghost', onClick: () => { haptic('tap'); invalidate() }, children: 'Refresh' })
+      jsx(Codicon, { key: 'icon', name: 'history', size: '1.1rem' }),
+      jsx('div', { key: 'title', className: 'text-sm font-semibold', children: 'Time Machine' }),
+      jsx('div', { key: 'subtitle', className: 'text-xs text-(--ui-text-tertiary)', children: 'configuration history & safe rollback' }),
+      jsx('div', { key: 'spacer', className: 'ml-auto' }),
+      jsx(SegmentedControl, { key: 'profiles', value: profile, onChange: switchProfile, options: profileOptions }),
+      jsx(Button, { key: 'prune', size: 'sm', variant: 'ghost', disabled: pruneBusy, onClick: prune, children: [jsx(Codicon, { key: 'icon', name: 'trash' }), ' Prune'] }),
+      jsx(Button, { key: 'new', size: 'sm', variant: 'secondary', onClick: () => { haptic('tap'); setNewOpen(true) }, children: [jsx(Codicon, { key: 'icon', name: 'checkpoint' }), ' New checkpoint'] }),
+      jsx(Button, { key: 'refresh', size: 'sm', variant: 'ghost', onClick: () => { haptic('tap'); invalidate() }, children: 'Refresh' })
     ] }),
     // Body
     jsxs('div', { className: 'tm-split min-h-0 flex-1', children: [
       // Timeline
-      jsx('div', { className: 'min-w-0 overflow-hidden border-r border-(--ui-stroke-tertiary)', children: jsx(ScrollArea, {
+      jsx('div', { key: 'timeline', className: 'min-w-0 overflow-hidden border-r border-(--ui-stroke-tertiary)', children: jsx(ScrollArea, {
         className: 'h-full',
         children: checkpointsQ.isLoading && !checkpoints.length
           ? jsx('div', { className: 'grid h-full place-items-center', children: jsx(Loader, { label: 'Loading checkpoints…' }) })
@@ -701,7 +701,7 @@ function TimeMachinePage() {
               ] })
       }) }),
       // Detail
-      jsx('div', { className: 'min-w-0 overflow-hidden', children: selectedCid
+      jsx('div', { key: 'detail', className: 'min-w-0 overflow-hidden', children: selectedCid
         ? jsx(DetailPanel, {
             profile,
             cid: selectedCid,
@@ -746,8 +746,8 @@ function TimeMachineChip() {
       type: 'button',
       onClick: () => { haptic('tap'); host.navigate('/time-machine') },
       children: [
-        jsx('span', { className: 'tm-dot tm-dot-ok' }),
-        jsx('span', { children: 'Time Machine' })
+        jsx('span', { key: 'dot', className: 'tm-dot tm-dot-ok' }),
+        jsx('span', { key: 'label', children: 'Time Machine' })
       ]
     })
   })

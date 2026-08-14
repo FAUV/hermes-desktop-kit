@@ -68,13 +68,13 @@ Retention: keeps the newest checkpoint per profile forever (never destroys the o
 ## Tests
 
 ```bash
-env -u PYTHONPATH python -m pytest tests -q     # backend suite (52 tests: catalog, store,
+env -u PYTHONPATH python -m pytest tests -q     # backend suite (55 tests: catalog, store,
                                                 # snapshot/watcher, diff, restore, retention, API)
 node tests/esm-registration.mjs                 # frontend registration (loader import-scan)
 HERMES_AGENT_NODE_MODULES=<dir with react+react-dom> node tests/esm-render.mjs  # SSR render
 ```
 
-The restore suite includes the parent's 10-step end-to-end acceptance scenario (fixture → checkpoint → modify/create/delete → diff → preview → apply → verify → excluded-never-touched → injected mid-restore failure rollback) plus stale-plan rejection, traversal/symlink defenses, corrupt-object fail-closed, concurrent-lock timeout, and retention pin semantics.
+The restore suite includes the parent's 10-step end-to-end acceptance scenario (fixture → checkpoint → modify/create/delete → diff → preview → apply → verify → excluded-never-touched → injected mid-restore failure rollback) plus stale-plan rejection, traversal/symlink defenses, corrupt-object fail-closed, concurrent snapshots, self-restoration guards (restore never touches the store or plugin files), and retention pin semantics.
 
 ## Design decisions
 

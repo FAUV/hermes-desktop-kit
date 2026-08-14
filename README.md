@@ -49,7 +49,7 @@ Also check out [hermes-desktop-achievements](https://github.com/asimons81/hermes
 
 - Frontend plugins are plain ESM, loaded uncompiled; the only import surface is `@hermes/plugin-sdk` + `react`. See the [desktop plugin SDK docs](https://hermes-agent.nousresearch.com/docs/developer-guide/desktop-plugin-sdk).
 - Backend plugins are FastAPI routers mounted by the Hermes serve process; the manifest declares `api: plugin_api.py`.
-- Tests: approval-inbox ships a full pytest + ESM suite (`109` backend tests); typefully-q ships a refresh-control unit test; time-machine ships a full backend suite (catalog/store/snapshot/diff/restore/retention/API — 52 pytest tests incl. the restore safety acceptance scenario) plus an ESM registration/render suite and a loader-contract pytest.
+- Tests: approval-inbox ships a full pytest + ESM suite (`109` backend tests); typefully-q ships a refresh-control unit test; time-machine ships a full backend suite (catalog/store/snapshot/diff/restore/retention/API — 55 pytest tests incl. the restore safety acceptance scenario, mid-restore failure rollback, concurrent snapshots, and self-restoration guards) plus an ESM registration/render suite and a loader-contract pytest.
 
 ## License
 

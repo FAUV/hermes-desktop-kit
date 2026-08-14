@@ -215,6 +215,88 @@ def test_whole_checkpoint_restore_deletes_new_files(profile_fixture, store_and_c
     assert not (profile_fixture / "scripts" / "added.sh").exists()
 
 
+def test_restore_never_touches_store_or_plugin_files(
+    profile_fixture, store_and_catalog
+):
+    """Self-restoration guard on the RESTORE side: a whole-checkpoint restore
+    must never plan, create, replace, or delete Time Machine's own plugin
+    implementation files, must never delete or modify pre-existing store
+    objects, and the plan itself must contain no store/plugin paths."""
+    store, catalog = store_and_catalog
+    a = _cp(store, catalog, profile_fixture, "A")
+
+    # Plugin implementation lives under the profile root.
+    plugin_dirs = [
+        profile_fixture / "plugins" / "time-machine",
+        profile_fixture / "desktop-plugins" / "time-machine",
+    ]
+    for d in plugin_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    (profile_fixture / "plugins" / "time-machine" / "plugin_api.py").write_text("x")
+    (profile_fixture / "desktop-plugins" / "time-machine" / "plugin.js").write_text("x")
+
+    # Snapshot plugin implementation bytes + pre-existing store objects.
+    plugins_before = {
+        str(p.relative_to(profile_fixture)): p.read_bytes()
+        for d in plugin_dirs
+        for p in d.rglob("*")
+        if p.is_file()
+    }
+    objects_before = {
+        p.name: p.read_bytes() for p in store.objects_dir.rglob("*") if p.is_file()
+    }
+
+    # Divergence, then a whole-checkpoint restore.
+    (profile_fixture / "config.yaml").write_text("model: switched\n")
+    (profile_fixture / "scripts" / "added.sh").write_text("#!/bin/sh\necho added\n")
+    plan = build_plan(store, catalog, "default", a["id"], selection=None)
+
+    # The plan itself must not contain store/plugin paths.
+    assert not any(
+        "time-machine/" in i["path"] or i["path"].startswith("time-machine")
+        for i in plan["items"]
+    )
+
+    apply_plan(store, catalog, plan["token"])
+
+    # Plugin implementation byte-identical after restore.
+    plugins_after = {
+        str(p.relative_to(profile_fixture)): p.read_bytes()
+        for d in plugin_dirs
+        for p in d.rglob("*")
+        if p.is_file()
+    }
+    assert plugins_after == plugins_before
+    # Pre-existing store objects unchanged (restore only adds, never mutates).
+    objects_after = {
+        p.name: p.read_bytes() for p in store.objects_dir.rglob("*") if p.is_file()
+    }
+    for name, content in objects_before.items():
+        assert objects_after[name] == content
+
+
+def test_restore_plan_rejects_plugin_selection(profile_fixture, store_and_catalog):
+    """Even a manual selection naming Time Machine's own files fails closed."""
+    store, catalog = store_and_catalog
+    a = _cp(store, catalog, profile_fixture, "A")
+    with pytest.raises((RestoreError, PathTraversalError)):
+        build_plan(
+            store,
+            catalog,
+            "default",
+            a["id"],
+            selection=["plugins/time-machine/plugin_api.py"],
+        )
+    with pytest.raises((RestoreError, PathTraversalError)):
+        build_plan(
+            store,
+            catalog,
+            "default",
+            a["id"],
+            selection=["desktop-plugins/time-machine/plugin.js"],
+        )
+
+
 def test_plan_rejects_traversal_selection(profile_fixture, store_and_catalog):
     store, catalog = store_and_catalog
     a = _cp(store, catalog, profile_fixture, "A")

@@ -61,6 +61,46 @@ def test_unknown_profile(store_and_catalog):
         pass
 
 
+def test_concurrent_snapshots_both_succeed(profile_fixture, store_and_catalog):
+    """Two threads checkpointing the same profile at once: both succeed,
+    both manifests are durable, no corruption, no lost checkpoint."""
+    import threading
+
+    store, catalog = store_and_catalog
+    results: dict = {}
+    errors: list = []
+
+    def worker(name):
+        try:
+            m = create_checkpoint(store, catalog, "default", "manual", label=name)
+            results[name] = m
+        except Exception as exc:  # noqa: BLE001 - surface any failure
+            errors.append((name, exc))
+
+    # Different live state per worker so the checkpoints differ.
+    (profile_fixture / "config.yaml").write_text("model: worker-a\n")
+    t1 = threading.Thread(target=worker, args=("a",))
+    t1.start()
+    (profile_fixture / "config.yaml").write_text("model: worker-b\n")
+    t2 = threading.Thread(target=worker, args=("b",))
+    t2.start()
+    t1.join(10)
+    t2.join(10)
+
+    assert not errors, f"concurrent snapshot errors: {errors}"
+    assert "a" in results and "b" in results
+    ids = {results["a"]["id"], results["b"]["id"]}
+    assert len(ids) == 2  # distinct checkpoint ids
+    manifests = store.list_manifests("default")
+    assert len(manifests) == 2  # both durable, neither lost
+    # Every manifest is healthy and self-consistent.
+    for m in manifests:
+        assert not m.get("degraded")
+        assert m["file_count"] == len(m["files"])
+        for meta in m["files"].values():
+            assert store.read_object(meta["sha256"]) is not None
+
+
 def test_watcher_baseline_then_auto(profile_fixture, store_and_catalog):
     store, catalog = store_and_catalog
     watcher = AutoWatcher(store, catalog, poll_s=30, debounce_s=0)
