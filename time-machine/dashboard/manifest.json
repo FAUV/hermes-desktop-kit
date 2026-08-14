@@ -1,0 +1,8 @@
+{
+  "name": "time-machine",
+  "label": "Time Machine",
+  "description": "Visual history of the human-maintained Hermes configuration layer — inspect diffs and safely undo changes.",
+  "icon": "history",
+  "version": "0.1.0",
+  "api": "plugin_api.py"
+}

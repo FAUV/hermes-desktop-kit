@@ -12,6 +12,7 @@ Each plugin is a plain runtime file (or file + small Python backend) that loads 
 | [approval-inbox](approval-inbox/) | "What's waiting on me" — action items, blocked kanban, failed cron, TRT drafts in one pane | Python | Local Hermes sources (env-configurable) |
 | [github-pr-dashboard](github-pr-dashboard/) | Created / review-requested / closed PRs across your account | Python | `gh` CLI, authenticated |
 | [typefully-q](typefully-q/) | Typefully queue calendar — reschedule, publish, delete from the desktop | Python | `TYPEFULLY_API_KEY` |
+| [time-machine](time-machine/) | Visual history of your Hermes config — inspect diffs and safely roll back changes | Python | — |
 
 ## Install (any single plugin)
 
@@ -20,7 +21,7 @@ Each plugin is a plain runtime file (or file + small Python backend) that loads 
 mkdir -p ~/.hermes/desktop-plugins
 cp -r <plugin> ~/.hermes/desktop-plugins/
 
-# Backend (approval-inbox, github-pr-dashboard, typefully-q only)
+# Backend (approval-inbox, github-pr-dashboard, typefully-q, time-machine only)
 mkdir -p ~/.hermes/plugins/<plugin>
 cp -r <plugin>/dashboard ~/.hermes/plugins/<plugin>/
 ```
@@ -33,6 +34,7 @@ plugins:
     - approval-inbox
     - github-pr-dashboard
     - typefully-q
+    - time-machine
 ```
 
 Frontend plugins load automatically from `~/.hermes/desktop-plugins/` — no config needed. If a frontend doesn't appear within a few seconds, hit `⌘K` → **Reload desktop plugins**.
@@ -47,7 +49,7 @@ Also check out [hermes-desktop-achievements](https://github.com/asimons81/hermes
 
 - Frontend plugins are plain ESM, loaded uncompiled; the only import surface is `@hermes/plugin-sdk` + `react`. See the [desktop plugin SDK docs](https://hermes-agent.nousresearch.com/docs/developer-guide/desktop-plugin-sdk).
 - Backend plugins are FastAPI routers mounted by the Hermes serve process; the manifest declares `api: plugin_api.py`.
-- Tests: approval-inbox ships a full pytest + ESM suite (`109` backend tests); typefully-q ships a refresh-control unit test.
+- Tests: approval-inbox ships a full pytest + ESM suite (`109` backend tests); typefully-q ships a refresh-control unit test; time-machine ships an ESM registration/render suite plus a loader-contract pytest.
 
 ## License
 
