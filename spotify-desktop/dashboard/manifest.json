@@ -1,0 +1,8 @@
+{
+  "name": "spotify-desktop",
+  "label": "Hermes for Spotify",
+  "description": "A personal Hermes companion page for Spotify connection status and remote-control capabilities.",
+  "icon": "music",
+  "version": "0.1.0",
+  "api": "plugin_api.py"
+}
