@@ -14,7 +14,6 @@ Each plugin is a plain runtime file (or file + small Python backend) that loads 
 | [typefully-q](typefully-q/) | Typefully queue calendar — reschedule, publish, delete from the desktop | Python | `TYPEFULLY_API_KEY` |
 | [time-machine](time-machine/) | Visual history of your Hermes config — inspect diffs and safely roll back changes | Python | — |
 | [nes-emulator](nes-emulator/) | HerNES — play .nes ROMs you already own in a full-pane jsnes canvas (save states, OS-mute detection) | Python | — |
-| [spotify-desktop](spotify-desktop/) | Hermes for Spotify — connection status, now playing, transport, devices, queue, search, library, playlist management via the typed Spotify Web API projection | Python | Hermes Spotify auth (`hermes auth spotify`); Premium for playback control |
 
 ## Install (any single plugin)
 
@@ -52,7 +51,7 @@ Also check out [hermes-desktop-achievements](https://github.com/asimons81/hermes
 
 - Frontend plugins are plain ESM, loaded uncompiled; the only import surface is `@hermes/plugin-sdk` + `react`. See the [desktop plugin SDK docs](https://hermes-agent.nousresearch.com/docs/developer-guide/desktop-plugin-sdk).
 - Backend plugins are FastAPI routers mounted by the Hermes serve process; the manifest declares `api: plugin_api.py`.
-- Tests: approval-inbox ships a full pytest + ESM suite (`109` backend tests); typefully-q ships a refresh-control unit test; time-machine ships a full backend suite (catalog/store/snapshot/diff/restore/retention/API — 55 pytest tests incl. the restore safety acceptance scenario, mid-restore failure rollback, concurrent snapshots, and self-restoration guards) plus an ESM registration/render suite and a loader-contract pytest; spotify-desktop ships a full pytest + ESM contract suite (55 pytest incl. a real isolated `hermes serve` mount check + 9 Node ESM contracts).
+- Tests: approval-inbox ships a full pytest + ESM suite (`109` backend tests); typefully-q ships a refresh-control unit test; time-machine ships a full backend suite (catalog/store/snapshot/diff/restore/retention/API — 55 pytest tests incl. the restore safety acceptance scenario, mid-restore failure rollback, concurrent snapshots, and self-restoration guards) plus an ESM registration/render suite and a loader-contract pytest.
 
 ## License
 
