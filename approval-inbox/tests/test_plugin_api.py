@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timedelta, timezone
 import sqlite3
 import sys
 from pathlib import Path
@@ -32,6 +33,7 @@ import plugin_api  # noqa: E402
 @pytest.fixture()
 def fixture_tree(tmp_path: Path) -> dict[str, Path]:
     """Build a complete fake local-state tree and point the router at it."""
+    now = datetime.now(timezone.utc)
     # --- action items -------------------------------------------------------
     action_items = tmp_path / "state" / "action-items.json"
     action_items.parent.mkdir(parents=True)
@@ -39,14 +41,14 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
         json.dumps(
             {
                 "schema_version": 1,
-                "updated_at": "2026-08-07T12:05:00Z",
+                "updated_at": (now - timedelta(days=3)).strftime("%Y-%m-%dT12:05:00Z"),
                 "items": [
                     {
                         "id": "open-one",
                         "text": "Approve pinning cron job X",
                         "artifact": "cron job abc",
                         "blocker": "Tony approval of cronjob update",
-                        "created": "2026-08-03T14:00:00Z",
+                        "created": (now - timedelta(days=6.916666666666667)).strftime("%Y-%m-%dT14:00:00Z"),
                         "status": "open",
                     },
                     {
@@ -54,14 +56,14 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
                         "text": "Decide fate of duplicate draft",
                         "artifact": "trt-editorial-ops drafts/x.md",
                         "blocker": "Tony decision",
-                        "created": "2026-08-04T21:10:00Z",
+                        "created": (now - timedelta(days=5.618055555555555)).strftime("%Y-%m-%dT21:10:00Z"),
                         "status": "open",
                     },
                     {
                         "id": "closed-one",
                         "text": "Already resolved",
                         "artifact": "none",
-                        "created": "2026-08-01T00:00:00Z",
+                        "created": (now - timedelta(days=9.5)).strftime("%Y-%m-%dT00:00:00Z"),
                         "status": "closed",
                     },
                 ],
@@ -135,14 +137,14 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
         "INSERT INTO executions (id, job_id, source, process_id, pid, status, claimed_at, started_at, finished_at, error) "
         "VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
-            ("e1", "job-failed", "builtin", "p1", 1, "failed", "2026-08-07T09:00:00Z",
-             "2026-08-07T09:00:00Z", "2026-08-07T09:00:10Z", "RuntimeError: boom"),
-            ("e2", "job-failed", "builtin", "p1", 1, "failed", "2026-08-06T09:00:00Z",
-             "2026-08-06T09:00:00Z", None, "RuntimeError: boom again"),
-            ("e3", "job-ok", "builtin", "p1", 1, "completed", "2026-08-07T10:00:00Z",
-             "2026-08-07T10:00:00Z", "2026-08-07T10:00:05Z", None),
-            ("e4", "job-old-failed", "builtin", "p1", 1, "failed", "2025-01-01T00:00:00Z",
-             "2025-01-01T00:00:00Z", None, "ancient"),
+            ("e1", "job-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=3.125)).strftime("%Y-%m-%dT09:00:00Z"),
+             (now - timedelta(days=3.125)).strftime("%Y-%m-%dT09:00:00Z"), (now - timedelta(days=3.124884259259259)).strftime("%Y-%m-%dT09:00:10Z"), "RuntimeError: boom"),
+            ("e2", "job-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=4.125)).strftime("%Y-%m-%dT09:00:00Z"),
+             (now - timedelta(days=4.125)).strftime("%Y-%m-%dT09:00:00Z"), None, "RuntimeError: boom again"),
+            ("e3", "job-ok", "builtin", "p1", 1, "completed", (now - timedelta(days=3.0833333333333335)).strftime("%Y-%m-%dT10:00:00Z"),
+             (now - timedelta(days=3.0833333333333335)).strftime("%Y-%m-%dT10:00:00Z"), (now - timedelta(days=3.083275462962963)).strftime("%Y-%m-%dT10:00:05Z"), None),
+            ("e4", "job-old-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"),
+             (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"), None, "ancient"),
         ],
     )
     conn.commit()
@@ -154,9 +156,9 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
             {
                 "jobs": [
                     {"id": "job-failed", "name": "Newsletter Analytics", "enabled": True,
-                     "last_status": "error", "last_error": "drift guard", "last_run_at": "2026-08-07T09:00:00Z"},
+                     "last_status": "error", "last_error": "drift guard", "last_run_at": (now - timedelta(days=3.125)).strftime("%Y-%m-%dT09:00:00Z")},
                     {"id": "job-ok", "name": "Daily Brief", "enabled": True,
-                     "last_status": "ok", "last_error": None, "last_run_at": "2026-08-07T10:00:00Z"},
+                     "last_status": "ok", "last_error": None, "last_run_at": (now - timedelta(days=3.0833333333333335)).strftime("%Y-%m-%dT10:00:00Z")},
                 ]
             }
         ),
@@ -481,6 +483,7 @@ def test_attention_response_contains_no_secret_material(
 ) -> None:
     """Regression #11: seed secret-shaped values into the sources; the
     serialized /attention response must not contain them."""
+    now = datetime.now(timezone.utc)
     # Seed a bearer token into the cron jobs registry (flows into the
     # agent_fixable item's authority via canonical.error).
     jobs_file = fixture_tree["cron_dir"] / "jobs.json"
@@ -500,7 +503,7 @@ def test_attention_response_contains_no_secret_material(
         "text": "Approve third-party integration",
         "artifact": "probe",
         "blocker": "Tony approval: api_key=ghp_testSecretValue1234567890abcdef",
-        "created": "2026-08-10T00:00:00Z",
+        "created": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     action_items.write_text(json.dumps(adata), encoding="utf-8")
