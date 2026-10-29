@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timedelta, timezone
 import sqlite3
 import sys
 from datetime import datetime, timezone
@@ -129,18 +130,19 @@ def _seed_kanban_event(board_dir: Path, task_id: str, kind: str, payload: dict, 
 
 def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
     """Build the full fake local-state tree and point the router/adapters at it."""
+    now = datetime.now(timezone.utc)
     action_items = tmp_path / "state" / "action-items.json"
     _write_json(action_items, {
         "schema_version": 1,
-        "updated_at": "2026-08-10T12:05:00Z",
+        "updated_at": (now - timedelta(days=0.003472222222222222)).strftime("%Y-%m-%dT12:05:00Z"),
         "items": [
             {
                 "id": "newsletter-analytics-drift-pin",
                 "text": "Approve pinning cron job to deepseek model",
                 "artifact": "cron job 52d9a0d36bfc (newsletter-analytics)",
                 "blocker": "Tony approval of: cronjob action=update job_id=52d9a0d36bfc provider=nous model=deepseek/deepseek-v4-flash-0731",
-                "created": "2026-08-03T14:00:00Z",
-                "updated": "2026-08-08T09:00:00Z",
+                "created": (now - timedelta(days=6.916666666666667)).strftime("%Y-%m-%dT14:00:00Z"),
+                "updated": (now - timedelta(days=2.125)).strftime("%Y-%m-%dT09:00:00Z"),
                 "status": "open",
             },
             {
@@ -148,8 +150,8 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
                 "text": "Supply featured image for WP draft",
                 "artifact": "WP draft 18517 (rabbit-r1-review)",
                 "blocker": "Tony to supply image; gate 18517 keeps BLOCKED missing_source_pack",
-                "created": "2026-08-06T00:00:00Z",
-                "updated": "2026-08-09T00:00:00Z",
+                "created": (now - timedelta(days=4.5)).strftime("%Y-%m-%dT00:00:00Z"),
+                "updated": (now - timedelta(days=1.5)).strftime("%Y-%m-%dT00:00:00Z"),
                 "status": "open",
             },
             {
@@ -157,8 +159,8 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
                 "text": "Already resolved",
                 "artifact": "none",
                 "blocker": "",
-                "created": "2026-08-01T00:00:00Z",
-                "updated": "2026-08-02T00:00:00Z",
+                "created": (now - timedelta(days=9.5)).strftime("%Y-%m-%dT00:00:00Z"),
+                "updated": (now - timedelta(days=8.5)).strftime("%Y-%m-%dT00:00:00Z"),
                 "status": "closed",
             },
         ],
@@ -168,7 +170,7 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
     _write_json(task_ledger, {
         "schema_version": 1,
         "generated_by": "hermes-task-maintenance",
-        "verified_at": "2026-08-10T11:00:00Z",
+        "verified_at": (now - timedelta(days=0.041666666666666664)).strftime("%Y-%m-%dT11:00:00Z"),
         "items": [
             {
                 "id": "cron-newsletter-analytics-drift-pin",
@@ -268,16 +270,16 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
         "INSERT INTO executions (id, job_id, source, process_id, pid, status, claimed_at, started_at, finished_at, error) "
         "VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
-            ("e1", "job-failed", "builtin", "p1", 1, "failed", "2026-08-10T08:00:00Z",
-             "2026-08-10T08:00:00Z", "2026-08-10T08:00:10Z", "HTTP 503 upstream capacity"),
-            ("e2", "job-recovered", "builtin", "p1", 1, "failed", "2026-08-09T08:00:00Z",
-             "2026-08-09T08:00:00Z", None, "RuntimeError: boom"),
-            ("e3", "job-recovered", "builtin", "p1", 1, "completed", "2026-08-10T08:00:00Z",
-             "2026-08-10T08:00:00Z", "2026-08-10T08:00:05Z", None),
-            ("e4", "job-restart", "builtin", "p1", 1, "unknown", "2026-08-10T06:00:00Z",
-             "2026-08-10T06:00:00Z", None, "Scheduler restarted; execution state unknown"),
-            ("e5", "job-old-failed", "builtin", "p1", 1, "failed", "2025-01-01T00:00:00Z",
-             "2025-01-01T00:00:00Z", None, "ancient"),
+            ("e1", "job-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"),
+             (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"), (now - timedelta(days=0.16655092592592594)).strftime("%Y-%m-%dT08:00:10Z"), "HTTP 503 upstream capacity"),
+            ("e2", "job-recovered", "builtin", "p1", 1, "failed", (now - timedelta(days=1.1666666666666667)).strftime("%Y-%m-%dT08:00:00Z"),
+             (now - timedelta(days=1.1666666666666667)).strftime("%Y-%m-%dT08:00:00Z"), None, "RuntimeError: boom"),
+            ("e3", "job-recovered", "builtin", "p1", 1, "completed", (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"),
+             (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"), (now - timedelta(days=0.1666087962962963)).strftime("%Y-%m-%dT08:00:05Z"), None),
+            ("e4", "job-restart", "builtin", "p1", 1, "unknown", (now - timedelta(days=0.25)).strftime("%Y-%m-%dT06:00:00Z"),
+             (now - timedelta(days=0.25)).strftime("%Y-%m-%dT06:00:00Z"), None, "Scheduler restarted; execution state unknown"),
+            ("e5", "job-old-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"),
+             (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"), None, "ancient"),
         ],
     )
     conn.commit()
@@ -288,12 +290,12 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
         "jobs": [
             {"id": "job-failed", "name": "Newsletter Analytics", "enabled": True, "state": "scheduled",
              "model_snapshot": "deepseek/deepseek-v4-flash-0731", "provider_snapshot": "nous",
-             "last_status": "error", "last_run_at": "2026-08-10T08:00:00Z",
+             "last_status": "error", "last_run_at": (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"),
              "last_error": "HTTP 503 upstream capacity", "next_run_at": "2026-08-17T09:00:00-05:00",
              "repeat": {"times": None, "completed": 1}},
             {"id": "job-recovered", "name": "Recovered Job", "enabled": True, "state": "scheduled",
              "model_snapshot": None, "provider_snapshot": None,
-             "last_status": "ok", "last_run_at": "2026-08-10T08:00:00Z", "last_error": None,
+             "last_status": "ok", "last_run_at": (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"), "last_error": None,
              "next_run_at": "2026-08-11T08:00:00-05:00", "repeat": {"times": None, "completed": 3}},
             {"id": "job-restart", "name": "Restart Job", "enabled": True, "state": "scheduled",
              "model_snapshot": None, "provider_snapshot": None,
@@ -305,11 +307,11 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
              "next_run_at": "2026-08-17T22:00:00-05:00", "repeat": {"times": None, "completed": 0}},
             {"id": "job-disabled", "name": "Disabled Job", "enabled": False, "state": "paused",
              "model_snapshot": None, "provider_snapshot": None,
-             "last_status": "error", "last_run_at": "2026-08-01T00:00:00Z", "last_error": "old failure",
+             "last_status": "error", "last_run_at": (now - timedelta(days=9.5)).strftime("%Y-%m-%dT00:00:00Z"), "last_error": "old failure",
              "next_run_at": None, "repeat": {"times": None, "completed": 0}},
             {"id": "job-old-failed", "name": "Old Failed Job", "enabled": True, "state": "scheduled",
              "model_snapshot": None, "provider_snapshot": None,
-             "last_status": "error", "last_run_at": "2025-01-01T00:00:00Z", "last_error": "ancient",
+             "last_status": "error", "last_run_at": (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"), "last_error": "ancient",
              "next_run_at": None, "repeat": {"times": None, "completed": 0}},
         ]
     })
@@ -367,7 +369,7 @@ def _build_fixture_tree(tmp_path: Path) -> dict[str, Path]:
     trt_staging.mkdir(parents=True)
     _write_json(trt_staging / "staging-18571-meta-muse-glimmer-open-weights.json", {
         "kind": "staging_receipt", "slug": "meta-muse-glimmer-open-weights", "post_id": 18571,
-        "post_status": "draft", "staged_at": "2026-08-10T06:45:00Z",
+        "post_status": "draft", "staged_at": (now - timedelta(days=0.21875)).strftime("%Y-%m-%dT06:45:00Z"),
         "source_pack_validation": {"verdict": "PASS", "codes": []},
         "gates": {"status_remains_draft": True, "no_publish": True},
     })
@@ -396,13 +398,14 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
 
 def _add_drift_cron(fixture: dict[str, Path]) -> None:
     """Add the live drift-guard job 52d9a0d36bfc to the fixture cron sources."""
+    now = datetime.now(timezone.utc)
     exec_db = fixture["exec_db"]
     conn = sqlite3.connect(exec_db)
     conn.execute(
         "INSERT INTO executions (id, job_id, source, process_id, pid, status, claimed_at, started_at, finished_at, error) "
         "VALUES (?,?,?,?,?,?,?,?,?,?)",
-        ("e6", "52d9a0d36bfc", "builtin", "p1", 1, "failed", "2026-08-10T07:00:00Z",
-         "2026-08-10T07:00:00Z", None,
+        ("e6", "52d9a0d36bfc", "builtin", "p1", 1, "failed", (now - timedelta(days=0.20833333333333334)).strftime("%Y-%m-%dT07:00:00Z"),
+         (now - timedelta(days=0.20833333333333334)).strftime("%Y-%m-%dT07:00:00Z"), None,
          "Skipped to prevent unintended spend: global inference config drifted since this job was created"),
     )
     conn.commit()
@@ -412,7 +415,7 @@ def _add_drift_cron(fixture: dict[str, Path]) -> None:
     data["jobs"].append({
         "id": "52d9a0d36bfc", "name": "newsletter-analytics", "enabled": True, "state": "scheduled",
         "model_snapshot": "deepseek/deepseek-v4-flash-0731", "provider_snapshot": "nous",
-        "last_status": "error", "last_run_at": "2026-08-10T07:00:00Z",
+        "last_status": "error", "last_run_at": (now - timedelta(days=0.20833333333333334)).strftime("%Y-%m-%dT07:00:00Z"),
         "last_error": "Skipped to prevent unintended spend: global inference config drifted since this job was created",
         "next_run_at": "2026-08-17T09:00:00-05:00", "repeat": {"times": None, "completed": 4},
     })
@@ -552,6 +555,7 @@ def test_action_tony_blocker_is_human_now_input_required(fixture_tree) -> None:
 
 
 def test_action_no_tony_language_is_agent_fixable(fixture_tree) -> None:
+    now = datetime.now(timezone.utc)
     # add an action item with no Tony language in the blocker
     action_items = fixture_tree["action_items"]
     data = json.loads(action_items.read_text(encoding="utf-8"))
@@ -560,8 +564,8 @@ def test_action_no_tony_language_is_agent_fixable(fixture_tree) -> None:
         "text": "Repair the newsletter conveyor",
         "artifact": "trt-editorial-ops",
         "blocker": "Fix the blocked_config error in the jobs registry",
-        "created": "2026-08-10T00:00:00Z",
-        "updated": "2026-08-10T00:00:00Z",
+        "created": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
+        "updated": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     action_items.write_text(json.dumps(data), encoding="utf-8")
@@ -575,6 +579,7 @@ def test_action_no_tony_language_is_agent_fixable(fixture_tree) -> None:
 
 
 def test_action_missing_blocker_is_informational_low_confidence(fixture_tree) -> None:
+    now = datetime.now(timezone.utc)
     action_items = fixture_tree["action_items"]
     data = json.loads(action_items.read_text(encoding="utf-8"))
     data["items"].append({
@@ -582,8 +587,8 @@ def test_action_missing_blocker_is_informational_low_confidence(fixture_tree) ->
         "text": "Investigate strange log line",
         "artifact": "",
         "blocker": "",
-        "created": "2026-08-10T00:00:00Z",
-        "updated": "2026-08-10T00:00:00Z",
+        "created": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
+        "updated": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     action_items.write_text(json.dumps(data), encoding="utf-8")
@@ -679,6 +684,7 @@ def test_kanban_already_live_approval_is_low_severity(fixture_tree) -> None:
 
 def test_action_slug_extraction_merges_with_trt_marker(fixture_tree) -> None:
     """F3: action item blocker with TRT slug merges with matching marker."""
+    now = datetime.now(timezone.utc)
     # Add matching TRT marker file
     trt = fixture_tree["trt"]
     (trt / "openai-education-plugins-2026.blocked.md").write_text(
@@ -692,8 +698,8 @@ def test_action_slug_extraction_merges_with_trt_marker(fixture_tree) -> None:
         "text": "Decide on openai-education-plugins duplicate",
         "artifact": "trt draft openai-education-plugins-2026",
         "blocker": "Tony decision: openai-education-plugins-2026 duplicate fate",
-        "created": "2026-08-10T00:00:00Z",
-        "updated": "2026-08-10T00:00:00Z",
+        "created": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
+        "updated": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     action_items.write_text(json.dumps(data), encoding="utf-8")
@@ -919,6 +925,7 @@ def test_pr_merge_two_kanban_cards_same_pr(fixture_tree) -> None:
 
 
 def test_title_fallback_is_low_confidence_and_last_resort(fixture_tree) -> None:
+    now = datetime.now(timezone.utc)
     # Two action items with identical titles but NO structured anchors do NOT
     # merge at high confidence; they stay separate low-confidence items.
     action_items = fixture_tree["action_items"]
@@ -928,8 +935,8 @@ def test_title_fallback_is_low_confidence_and_last_resort(fixture_tree) -> None:
         "text": "Follow up on outstanding item",
         "artifact": "",
         "blocker": "",
-        "created": "2026-08-10T00:00:00Z",
-        "updated": "2026-08-10T00:00:00Z",
+        "created": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
+        "updated": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     data["items"].append({
@@ -937,8 +944,8 @@ def test_title_fallback_is_low_confidence_and_last_resort(fixture_tree) -> None:
         "text": "Follow up on outstanding item",
         "artifact": "",
         "blocker": "",
-        "created": "2026-08-10T00:00:00Z",
-        "updated": "2026-08-10T00:00:00Z",
+        "created": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
+        "updated": (now - timedelta(days=0.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     action_items.write_text(json.dumps(data), encoding="utf-8")
@@ -1143,6 +1150,7 @@ def test_stale_resolved_suppresses_contradicted_action_item(fixture_tree) -> Non
     the #62/#66 portion is stale_resolved (§12.1 row 2). The surviving PR #77
     gate re-enters via the kanban github-health cards, so no valid gate is
     hidden."""
+    now = datetime.now(timezone.utc)
     # action item demanding issue-close of #62/#66
     action_items = fixture_tree["action_items"]
     data = json.loads(action_items.read_text(encoding="utf-8"))
@@ -1151,8 +1159,8 @@ def test_stale_resolved_suppresses_contradicted_action_item(fixture_tree) -> Non
         "text": "Approve merging 3 local hermes-vault repair commits into master, then close GitHub issues #62 and #66. Related: PR #77 rebased, CI green.",
         "artifact": "hermes-vault repo",
         "blocker": "Tony approval (outbound GitHub merge + issue close); PR #77 merge decision with Tony",
-        "created": "2026-08-01T00:00:00Z",
-        "updated": "2026-08-09T00:00:00Z",
+        "created": (now - timedelta(days=9.5)).strftime("%Y-%m-%dT00:00:00Z"),
+        "updated": (now - timedelta(days=1.5)).strftime("%Y-%m-%dT00:00:00Z"),
         "status": "open",
     })
     action_items.write_text(json.dumps(data), encoding="utf-8")

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timedelta, timezone
 import sqlite3
 import sys
 from pathlib import Path
@@ -129,20 +130,21 @@ def _seed_kanban_event(board_dir: Path, task_id: str, kind: str, payload: dict, 
 @pytest.fixture()
 def fixture_tree(tmp_path: Path) -> dict[str, Path]:
     """Build the full fake local-state tree and point the router/adapters at it."""
+    now = datetime.now(timezone.utc)
 
     # --- action items -------------------------------------------------------
     action_items = tmp_path / "state" / "action-items.json"
     _write_json(action_items, {
         "schema_version": 1,
-        "updated_at": "2026-08-10T12:05:00Z",
+        "updated_at": (now - timedelta(days=0.003472222222222222)).strftime("%Y-%m-%dT12:05:00Z"),
         "items": [
             {
                 "id": "newsletter-analytics-drift-pin",
                 "text": "Approve pinning cron job to deepseek model",
                 "artifact": "cron job 52d9a0d36bfc (newsletter-analytics)",
                 "blocker": "Tony approval of: cronjob action=update job_id=52d9a0d36bfc provider=nous model=deepseek/deepseek-v4-flash-0731",
-                "created": "2026-08-03T14:00:00Z",
-                "updated": "2026-08-08T09:00:00Z",
+                "created": (now - timedelta(days=6.916666666666667)).strftime("%Y-%m-%dT14:00:00Z"),
+                "updated": (now - timedelta(days=2.125)).strftime("%Y-%m-%dT09:00:00Z"),
                 "status": "open",
             },
             {
@@ -150,8 +152,8 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
                 "text": "Supply featured image for WP draft",
                 "artifact": "WP draft 18517 (rabbit-r1-review)",
                 "blocker": "Tony to supply image; gate 18517 keeps BLOCKED missing_source_pack",
-                "created": "2026-08-06T00:00:00Z",
-                "updated": "2026-08-09T00:00:00Z",
+                "created": (now - timedelta(days=4.5)).strftime("%Y-%m-%dT00:00:00Z"),
+                "updated": (now - timedelta(days=1.5)).strftime("%Y-%m-%dT00:00:00Z"),
                 "status": "open",
             },
             {
@@ -159,8 +161,8 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
                 "text": "Already resolved",
                 "artifact": "none",
                 "blocker": "",
-                "created": "2026-08-01T00:00:00Z",
-                "updated": "2026-08-02T00:00:00Z",
+                "created": (now - timedelta(days=9.5)).strftime("%Y-%m-%dT00:00:00Z"),
+                "updated": (now - timedelta(days=8.5)).strftime("%Y-%m-%dT00:00:00Z"),
                 "status": "closed",
             },
         ],
@@ -171,7 +173,7 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
     _write_json(task_ledger, {
         "schema_version": 1,
         "generated_by": "hermes-task-maintenance",
-        "verified_at": "2026-08-10T11:00:00Z",
+        "verified_at": (now - timedelta(days=0.041666666666666664)).strftime("%Y-%m-%dT11:00:00Z"),
         "items": [
             {
                 "id": "cron-newsletter-analytics-drift-pin",
@@ -275,16 +277,16 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
         "INSERT INTO executions (id, job_id, source, process_id, pid, status, claimed_at, started_at, finished_at, error) "
         "VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
-            ("e1", "job-failed", "builtin", "p1", 1, "failed", "2026-08-10T08:00:00Z",
-             "2026-08-10T08:00:00Z", "2026-08-10T08:00:10Z", "HTTP 503 upstream capacity"),
-            ("e2", "job-recovered", "builtin", "p1", 1, "failed", "2026-08-09T08:00:00Z",
-             "2026-08-09T08:00:00Z", None, "RuntimeError: boom"),
-            ("e3", "job-recovered", "builtin", "p1", 1, "completed", "2026-08-10T08:00:00Z",
-             "2026-08-10T08:00:00Z", "2026-08-10T08:00:05Z", None),
-            ("e4", "job-restart", "builtin", "p1", 1, "unknown", "2026-08-10T06:00:00Z",
-             "2026-08-10T06:00:00Z", None, "Scheduler restarted; execution state unknown"),
-            ("e5", "job-old-failed", "builtin", "p1", 1, "failed", "2025-01-01T00:00:00Z",
-             "2025-01-01T00:00:00Z", None, "ancient"),
+            ("e1", "job-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"),
+             (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"), (now - timedelta(days=0.16655092592592594)).strftime("%Y-%m-%dT08:00:10Z"), "HTTP 503 upstream capacity"),
+            ("e2", "job-recovered", "builtin", "p1", 1, "failed", (now - timedelta(days=1.1666666666666667)).strftime("%Y-%m-%dT08:00:00Z"),
+             (now - timedelta(days=1.1666666666666667)).strftime("%Y-%m-%dT08:00:00Z"), None, "RuntimeError: boom"),
+            ("e3", "job-recovered", "builtin", "p1", 1, "completed", (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"),
+             (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"), (now - timedelta(days=0.1666087962962963)).strftime("%Y-%m-%dT08:00:05Z"), None),
+            ("e4", "job-restart", "builtin", "p1", 1, "unknown", (now - timedelta(days=0.25)).strftime("%Y-%m-%dT06:00:00Z"),
+             (now - timedelta(days=0.25)).strftime("%Y-%m-%dT06:00:00Z"), None, "Scheduler restarted; execution state unknown"),
+            ("e5", "job-old-failed", "builtin", "p1", 1, "failed", (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"),
+             (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"), None, "ancient"),
         ],
     )
     conn.commit()
@@ -295,12 +297,12 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
         "jobs": [
             {"id": "job-failed", "name": "Newsletter Analytics", "enabled": True, "state": "scheduled",
              "model_snapshot": "deepseek/deepseek-v4-flash-0731", "provider_snapshot": "nous",
-             "last_status": "error", "last_run_at": "2026-08-10T08:00:00Z",
+             "last_status": "error", "last_run_at": (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"),
              "last_error": "HTTP 503 upstream capacity", "next_run_at": "2026-08-17T09:00:00-05:00",
              "repeat": {"times": None, "completed": 1}},
             {"id": "job-recovered", "name": "Recovered Job", "enabled": True, "state": "scheduled",
              "model_snapshot": None, "provider_snapshot": None,
-             "last_status": "ok", "last_run_at": "2026-08-10T08:00:00Z", "last_error": None,
+             "last_status": "ok", "last_run_at": (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z"), "last_error": None,
              "next_run_at": "2026-08-11T08:00:00-05:00", "repeat": {"times": None, "completed": 3}},
             {"id": "job-restart", "name": "Restart Job", "enabled": True, "state": "scheduled",
              "model_snapshot": None, "provider_snapshot": None,
@@ -312,11 +314,11 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
              "next_run_at": "2026-08-17T22:00:00-05:00", "repeat": {"times": None, "completed": 0}},
             {"id": "job-disabled", "name": "Disabled Job", "enabled": False, "state": "paused",
              "model_snapshot": None, "provider_snapshot": None,
-             "last_status": "error", "last_run_at": "2026-08-01T00:00:00Z", "last_error": "old failure",
+             "last_status": "error", "last_run_at": (now - timedelta(days=9.5)).strftime("%Y-%m-%dT00:00:00Z"), "last_error": "old failure",
              "next_run_at": None, "repeat": {"times": None, "completed": 0}},
             {"id": "job-old-failed", "name": "Old Failed Job", "enabled": True, "state": "scheduled",
              "model_snapshot": None, "provider_snapshot": None,
-             "last_status": "error", "last_run_at": "2025-01-01T00:00:00Z", "last_error": "ancient",
+             "last_status": "error", "last_run_at": (now - timedelta(days=365)).strftime("%Y-%m-%dT00:00:00Z"), "last_error": "ancient",
              "next_run_at": None, "repeat": {"times": None, "completed": 0}},
         ]
     })
@@ -381,7 +383,7 @@ def fixture_tree(tmp_path: Path) -> dict[str, Path]:
     trt_staging.mkdir(parents=True)
     _write_json(trt_staging / "staging-18571-meta-muse-glimmer-open-weights.json", {
         "kind": "staging_receipt", "slug": "meta-muse-glimmer-open-weights", "post_id": 18571,
-        "post_status": "draft", "staged_at": "2026-08-10T06:45:00Z",
+        "post_status": "draft", "staged_at": (now - timedelta(days=0.21875)).strftime("%Y-%m-%dT06:45:00Z"),
         "source_pack_validation": {"verdict": "PASS", "codes": []},
         "gates": {"status_remains_draft": True, "no_publish": True},
     })
@@ -533,12 +535,13 @@ def test_adapt_kanban_legacy_schema_fail_soft(fixture_tree) -> None:
 # ---------------------------------------------------------------------------
 
 def test_adapt_cron_failed_candidate_with_registry_fields(fixture_tree) -> None:
+    now = datetime.now(timezone.utc)
     result = plugin_api.adapt_cron()
     assert result["ok"] is True
     failed = next(c for c in result["candidates"] if c["source_key"] == "cron:job-failed")
     assert failed["canonical"]["job_id"] == "job-failed"
     assert failed["canonical"]["last_status"] == "error"
-    assert failed["canonical"]["last_run_at"] == "2026-08-10T08:00:00Z"
+    assert failed["canonical"]["last_run_at"] == (now - timedelta(days=0.16666666666666666)).strftime("%Y-%m-%dT08:00:00Z")
     assert failed["state"] == "failed"
     assert failed["native"]["enabled"] is True
     assert failed["native"]["model_snapshot"] == "deepseek/deepseek-v4-flash-0731"
